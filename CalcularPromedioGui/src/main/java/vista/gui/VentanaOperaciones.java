@@ -42,7 +42,7 @@ public class VentanaOperaciones extends JFrame implements ActionListener {
 
     private Procesos misProcesos;
     private Coordinador miCoordinador;
-    private String nombre;
+
 
     public void setCoordinador (Coordinador coordinador) {
         this.miCoordinador = coordinador;
@@ -211,10 +211,10 @@ public class VentanaOperaciones extends JFrame implements ActionListener {
             lblResPromedio.setText(Double.toString(promedio));
             
             if (promedio > 3.5) {
-                lblResultado.setText("Resultado: El estudiante "+nombre+"APROBÓ");
+                lblResultado.setText("Resultado: El estudiante APROBÓ");
                 lblResultado.setForeground(Color.green);
             } else {
-                lblResultado.setText("Resultado: El estudiante:" +nombre+ "REPROBÓ");
+                lblResultado.setText("Resultado: El estudiante REPROBÓ");
                 lblResultado.setForeground(Color.red);
             }
             
