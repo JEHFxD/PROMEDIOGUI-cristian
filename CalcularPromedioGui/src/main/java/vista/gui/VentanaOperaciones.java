@@ -1,28 +1,13 @@
 package vista.gui;
 
 import controlador.Coordinador;
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-
 import modelo.operaciones.Procesos;
-import modelo.vo.EstudianteVO;
 
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-import java.awt.GridLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.List;
-import java.awt.Color;
-import java.awt.Font;
-import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 
 public class VentanaOperaciones extends JFrame implements ActionListener {
 
@@ -32,9 +17,7 @@ public class VentanaOperaciones extends JFrame implements ActionListener {
     private JTextField txtNota2;
     private JTextField txtNota3;
     private JButton btnCalcular;
-    private JLabel lblResPromedio,lblResultado;
-
-
+    private JLabel lblResPromedio, lblResultado;
     private JButton btnImprimirTotal;
     private JButton btnConsultarestudiante;
     private JTextField txtDocumento;
@@ -42,13 +25,13 @@ public class VentanaOperaciones extends JFrame implements ActionListener {
 
     private Procesos misProcesos;
     private Coordinador miCoordinador;
+    private JLabel etiquetaEstadoFinal; // Corregido a JLabel
 
-
-    public void setCoordinador (Coordinador coordinador) {
+    public void setCoordinador(Coordinador coordinador) {
         this.miCoordinador = coordinador;
     }
-    
-    public void setProcesos (Procesos procesos) {
+
+    public void setProcesos(Procesos procesos) {
         this.misProcesos = procesos;
     }
 
@@ -61,7 +44,7 @@ public class VentanaOperaciones extends JFrame implements ActionListener {
         iniciarComponentes();
     }
 
-    private void iniciarComponentes(){
+    private void iniciarComponentes() {
         panelPrincipal = new JPanel();
         panelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
         setContentPane(panelPrincipal);
@@ -173,21 +156,27 @@ public class VentanaOperaciones extends JFrame implements ActionListener {
         btnConsultarLista.setBounds(181, 365, 136, 31);
         btnConsultarLista.addActionListener(this);
         panelPrincipal.add(btnConsultarLista);
+
+        
+        etiquetaEstadoFinal = new JLabel();
+        etiquetaEstadoFinal.setFont(new Font("Tahoma", Font.PLAIN, 25));
+        etiquetaEstadoFinal.setBounds(31, 320, 396, 31);
+        panelPrincipal.add(etiquetaEstadoFinal);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource()==btnCalcular) {
+        if (e.getSource() == btnCalcular) {
             calcularPromedio();
-        } else if (e.getSource()==btnImprimirTotal) {
+        } else if (e.getSource() == btnImprimirTotal) {
             imprimirTotal();
-        } else if (e.getSource()==btnConsultarestudiante) {
+        } else if (e.getSource() == btnConsultarestudiante) {
             consultarEstudiante();
-        } else if (e.getSource()==btnConsultarLista) {
+        } else if (e.getSource() == btnConsultarLista) {
             consultarLista();
         }
     }
-    
+
     private void consultarLista() {
         miCoordinador.mostrarVentanaConsultaPersonas();
     }
@@ -195,32 +184,60 @@ public class VentanaOperaciones extends JFrame implements ActionListener {
     private void imprimirTotal() {
         miCoordinador.mostrarVentanaConsultaGeneral();
     }
-    
+
     private void consultarEstudiante() {
         miCoordinador.mostrarVentanaConsulta();
     }
-    
+
     private void calcularPromedio() {
         try {
-            double nota1, nota2, nota3;
-            nota1 = Double.parseDouble(txtNota1.getText());
-            nota2 = Double.parseDouble(txtNota2.getText());
-            nota3 = Double.parseDouble(txtNota3.getText());
-            
-            double promedio = misProcesos.calcularPromedio(nota1, nota2, nota3);
-            lblResPromedio.setText(Double.toString(promedio));
-            
-            if (promedio > 3.5) {
-                lblResultado.setText("Resultado: El estudiante APROBÓ");
-                lblResultado.setForeground(Color.green);
-            } else {
-                lblResultado.setText("Resultado: El estudiante REPROBÓ");
-                lblResultado.setForeground(Color.red);
-            }
-            
-            misProcesos.registrarEnBD(txtNombre.getText(), txtDocumento.getText(), nota1, nota2, nota3, promedio);
+            double primeraNota = obtenerNota(txtNota1);
+            double segundaNota = obtenerNota(txtNota2);
+            double terceraNota = obtenerNota(txtNota3);
+
+            double promedio = misProcesos.calcularPromedio(primeraNota, segundaNota, terceraNota);
+
+            actualizarResultadoPromedio(promedio);
+
+            guardarDatosEnBD(primeraNota, segundaNota, terceraNota, promedio);
+
+        } catch (IllegalArgumentException e) {
+            mostrarErrorNotasFueraDeRango(e.getMessage());
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Las notas ingresadas no son validas", "Datos invalidos", JOptionPane.ERROR_MESSAGE);
+            mostrarErrorNotasInvalidas();
         }
+    }
+
+    private double obtenerNota(JTextField campoNota) throws NumberFormatException, IllegalArgumentException {
+        double nota = Double.parseDouble(campoNota.getText());
+        if (nota < 0 || nota > 5) {
+            throw new IllegalArgumentException("La nota debe estar entre 0 y 5");
+        }
+        return nota;
+    }
+
+    private void actualizarResultadoPromedio(double promedio) {
+        lblResPromedio.setText(Double.toString(promedio));
+        String resultado = promedio > 3.5 ? "APROBÓ" : "REPROBÓ";
+        Color color = promedio > 3.5 ? Color.green : Color.red;
+
+        actualizarEstadoFinal(resultado, color);
+    }
+
+    private void actualizarEstadoFinal(String estado, Color color) {
+        etiquetaEstadoFinal.setText("Resultado: El estudiante " + estado);
+        etiquetaEstadoFinal.setForeground(color);
+    }
+
+    private void guardarDatosEnBD(double nota1, double nota2, double nota3, double promedio) {
+        misProcesos.registrarEnBD(txtNombre.getText(), txtDocumento.getText(), nota1, nota2, nota3, promedio);
+    }
+
+    private void mostrarErrorNotasFueraDeRango(String mensaje) {
+        JOptionPane.showMessageDialog(null, mensaje, "Datos inválidos", JOptionPane.ERROR_MESSAGE);
+    }
+
+    private void mostrarErrorNotasInvalidas() {
+        JOptionPane.showMessageDialog(null, "Las notas ingresadas no son válidas", "Datos inválidos", JOptionPane.ERROR_MESSAGE);
     }
 }
