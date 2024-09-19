@@ -191,15 +191,15 @@ public class VentanaOperaciones extends JFrame implements ActionListener {
 
     private void calcularPromedio() {
         try {
-            double primeraNota = obtenerNota(txtNota1);
-            double segundaNota = obtenerNota(txtNota2);
-            double terceraNota = obtenerNota(txtNota3);
+            double nota1 = obtenerNota(txtNota1);
+            double nota2 = obtenerNota(txtNota2);
+            double nota3 = obtenerNota(txtNota3);
 
-            double promedio = misProcesos.calcularPromedio(primeraNota, segundaNota, terceraNota);
+            double promedio = misProcesos.calcularPromedio(nota1, nota2, nota3);
 
             actualizarResultadoPromedio(promedio);
 
-            guardarDatosEnBD(primeraNota, segundaNota, terceraNota, promedio);
+            guardarDatosEnBD(nota1, nota2, nota3, promedio);
 
         } catch (IllegalArgumentException e) {
             mostrarErrorNotasFueraDeRango(e.getMessage());
