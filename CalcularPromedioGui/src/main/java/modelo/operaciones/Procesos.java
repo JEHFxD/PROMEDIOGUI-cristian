@@ -30,7 +30,7 @@ public class Procesos {
     }
     
     public void actualizarEstudiante(String nombre, String documento, double nota1, double nota2, double nota3, double promedio) {
-        //if (verificarValido(nombre, documento, nota1, nota2, nota3))
+        
         miModeloDatos.actualizarEstudiante(nombre, documento, nota1, nota2, nota3, promedio);
     }
 
@@ -45,7 +45,6 @@ public class Procesos {
             estudiante.setPromedio(promedio);
             if (verificarValido(nombre, documento, nota1, nota2, nota3))
                 miModeloDatos.registrarEstudiante(estudiante);
-            //JOptionPane.showMessageDialog(null, "Se ha registrado al estudiante "+nombre);
         } else {
             JOptionPane.showMessageDialog(null, "El estudiante ya está registrado", "Datos invalidos", JOptionPane.ERROR_MESSAGE);
         }
